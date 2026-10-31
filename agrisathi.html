@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AgriSathi — कृषीसाथी</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#F6F2E4;--card:#fff;--ink:#1d2a1f;--mute:#5d6b5f;--g:#1E5631;--g2:#4C9A2A;--y:#E3A72F;--line:#e3dcc6;--soft:#EAF1DC;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141b15;--card:#1e2820;--ink:#eef2e6;--mute:#a9b7a9;--g:#8fd16a;--g2:#6bb544;--line:#334236;--soft:#24332a}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Mukta,"Noto Sans Devanagari",system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--g);color:#fff;padding:8px 14px;padding-top:calc(8px + env(safe-area-inset-top,0px));display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+:root[data-theme=light] header,header{background:#1E5631;color:#fff}
+.logo{font-weight:800;font-size:22px;letter-spacing:.2px}
+nav{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:100%;order:3}
+nav button{background:none;border:0;color:#dfeed3;font:600 16px Mukta,sans-serif;padding:8px 14px;border-radius:99px;cursor:pointer;white-space:nowrap}
+nav button.on{background:#fff;color:#1E5631}
+select,input{font:inherit;color:inherit}
+.lang{margin-left:auto;background:#fff;color:#1d2a1f;border:0;border-radius:8px;padding:6px 8px}
+main{max-width:1000px;margin:0 auto;padding:18px 14px 60px}
+h1,h2,h3{line-height:1.25;margin:0 0 .5em}h1{font-size:30px;font-weight:800}h2{font-size:22px}h3{font-size:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.btn{background:var(--g);color:#fff;border:0;border-radius:12px;font:700 17px Mukta,sans-serif;padding:12px 18px;cursor:pointer;min-height:48px}
+:root[data-theme=dark] .btn{color:#10200f}.btn.alt{background:var(--soft);color:var(--g)}
+.btn:focus-visible,select:focus-visible,input:focus-visible,nav button:focus-visible{outline:3px solid var(--y);outline-offset:2px}
+.tag{display:inline-block;background:#fff3d1;color:#6b4a00;border-radius:99px;font-size:13px;padding:1px 10px;font-weight:600}
+.note{background:#fff3d1;color:#4d3800;border-radius:10px;padding:10px 12px;font-size:15px;margin:10px 0}
+.stat b{font-size:30px;display:block;color:var(--g)}.mute{color:var(--mute);font-size:15px}
+.scale{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:12px 0}
+.seg{border-radius:10px;color:#fff;text-align:center;padding:8px 2px;font-weight:800;font-size:18px;opacity:.55}
+.seg small{display:block;font-weight:600;font-size:11px;line-height:1.2}.seg.on{opacity:1;outline:3px solid var(--ink);outline-offset:2px}
+.crop{font-size:44px}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+label{display:block;font-weight:600;margin:10px 0 4px}
+select,input[type=number],input[type=search],input[type=text]{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;background:var(--card)}
+.prev{max-width:100%;max-height:280px;border-radius:12px;display:block;margin:10px 0}
+.chip{border:1.5px solid var(--line);background:var(--card);border-radius:99px;padding:6px 14px;font:600 15px Mukta,sans-serif;cursor:pointer;color:var(--ink)}.chip.on{background:var(--g);color:#fff;border-color:var(--g)}
+.gbadge{display:inline-block;color:#fff;border-radius:12px;padding:8px 16px;font-weight:800;font-size:20px}
+ul{padding-left:20px;margin:.3em 0}.spin{width:28px;height:28px;border:4px solid var(--line);border-top-color:var(--g2);border-radius:50%;animation:s 1s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes s{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.spin{animation:none}}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1d2a1f;color:#fff;padding:10px 18px;border-radius:12px;z-index:9}
+footer{text-align:center;color:var(--mute);font-size:14px;padding:20px}
+</style>
+</head>
+<body>
+<header><span class="logo">🌾 AgriSathi</span><select class="lang" id="lang" aria-label="Language"></select><nav id="nav"></nav></header>
+<main id="app"></main>
+<footer id="foot"></footer>
+<script>
+// ---- Central translation dictionary: [English, Hindi, Marathi]
+const LANGS=[['en','English',1],['hi','हिन्दी',1],['mr','मराठी',1]];
+const D={
+home:['Home','मुख्य','मुख्य'],scan:['Crop scan','फसल स्कैन','पीक स्कॅन'],soil:['Soil pH','मिट्टी pH','माती pH'],advice:['Advice','सलाह','सल्ला'],market:['Market','बाज़ार','बाजार'],
+hello:['Your farm, healthier every day.','आपका खेत, हर दिन और स्वस्थ।','तुमची शेती, दररोज अधिक निरोगी.'],
+namaste:['Hello, Ramesh 🙏','नमस्ते, रमेश 🙏','नमस्कार, रमेश 🙏'],
+sample:['Sample data','नमूना डेटा','नमुना डेटा'],
+ncrops:['Registered crops','पंजीकृत फसलें','नोंदणीकृत पिके'],lg:['Latest health grade','नवीनतम स्वास्थ्य ग्रेड','ताजा आरोग्य ग्रेड'],lp:['Latest soil pH','नवीनतम मिट्टी pH','ताजा मातीचा pH'],pend:['Pending advice','बाकी सलाह','प्रलंबित सल्ला'],
+myc:['My crops','मेरी फसलें','माझी पिके'],quick:['What do you want to do?','आप क्या करना चाहते हैं?','तुम्हाला काय करायचे आहे?'],
+scanB:['Scan a crop','फसल स्कैन करें','पीक स्कॅन करा'],soilB:['Check soil pH','मिट्टी का pH जाँचें','मातीचा pH तपासा'],advB:['Get advice','सलाह लें','सल्ला मिळवा'],mktB:['Browse products','उत्पाद देखें','उत्पादने पाहा'],
+last:['Last scan','पिछला स्कैन','मागील स्कॅन'],plot:['Plot','खेत','प्लॉट'],stg:['Growth stage','बढ़वार की अवस्था','वाढीची अवस्था'],crop:['Crop','फसल','पीक'],
+s1:['Seedling','पौध','रोप'],s2:['Growing','बढ़वार','वाढ'],s3:['Flowering','फूल आना','फुलोरा'],s4:['Fruiting / grain filling','फल / दाने बनना','फळ / दाणे भरणे'],
+photo:['Take or choose a photo','फोटो लें या चुनें','फोटो काढा किंवा निवडा'],another:['Choose another','दूसरा चुनें','दुसरा निवडा'],
+analyze:['Analyze crop','फसल जाँचें','पीक तपासा'],loading:['Analyzing…','जाँच हो रही है…','तपासणी सुरू आहे…'],needimg:['Please add a photo first.','पहले फोटो जोड़ें।','आधी फोटो जोडा.'],
+mock:['Grade received from your device. This is not a diagnosis; confirm with an expert.','यह ग्रेड आपके डिवाइस से मिला है। यह रोग-निदान नहीं है; विशेषज्ञ से पुष्टि करें।','हा ग्रेड तुमच्या डिव्हाइसकडून मिळाला आहे. हे रोगनिदान नाही; तज्ज्ञांकडून खात्री करा.'],
+obs:['What we observed','हमने क्या देखा','आम्ही काय पाहिले'],why:['Possible reasons','संभावित कारण','संभाव्य कारणे'],todo:['What you should do','आपको क्या करना चाहिए','तुम्ही काय करावे'],prev:['How to prevent this in the future','आगे इससे कैसे बचें','पुढे हे कसे टाळावे'],
+reasons:['Too little or too much water|Nutrient imbalance (a soil test is needed to confirm)|Pest or disease (needs expert confirmation)','पानी कम या ज़्यादा|पोषक तत्वों का असंतुलन (मिट्टी जाँच से पुष्टि करें)|कीट या रोग (विशेषज्ञ से पुष्टि ज़रूरी)','पाणी कमी किंवा जास्त|अन्नद्रव्यांचे असंतुलन (माती तपासणीने खात्री करा)|कीड किंवा रोग (तज्ज्ञांकडून खात्री करा)'],
+prevT:['Rotate crops|Water at the right time and avoid waterlogging|Check leaves every week|Keep the field clean','फसल चक्र अपनाएँ|सही समय पर सिंचाई करें, पानी जमा न होने दें|हर हफ्ते पत्तियाँ देखें|खेत साफ़ रखें','पीक फेरपालट करा|योग्य वेळी पाणी द्या, पाणी साचू देऊ नका|दर आठवड्याला पाने तपासा|शेत स्वच्छ ठेवा'],
+scale:['Health grades 1–6','स्वास्थ्य ग्रेड 1–6','आरोग्य ग्रेड 1–6'],
+scaleN:['Provisional scale for this prototype, not a validated standard. A grade alone does not prove a disease.','यह प्रोटोटाइप के लिए अस्थायी पैमाना है, मान्य मानक नहीं। केवल ग्रेड से रोग सिद्ध नहीं होता।','हे प्रोटोटाइपसाठी तात्पुरते मोजमाप आहे, प्रमाणित मानक नाही. फक्त ग्रेडवरून रोग सिद्ध होत नाही.'],
+saved:['Saved reports','सहेजी रिपोर्ट','जतन केलेले अहवाल'],none:['Nothing yet. Scan a crop to begin.','अभी कुछ नहीं। शुरू करने के लिए फसल स्कैन करें।','अजून काही नाही. सुरू करण्यासाठी पीक स्कॅन करा.'],
+phv:['Soil pH reading (0–14)','मिट्टी का pH मान (0–14)','मातीचे pH मूल्य (0–14)'],check:['Check','जाँचें','तपासा'],badpH:['Enter a number from 0 to 14.','0 से 14 के बीच संख्या डालें।','0 ते 14 दरम्यान संख्या टाका.'],
+sim:['Use simulated sensor reading','नकली सेंसर रीडिंग लें','नक्कल सेन्सर रीडिंग घ्या'],simL:['Simulated reading (no hardware connected)','नकली रीडिंग (कोई हार्डवेयर नहीं जुड़ा)','नक्कल रीडिंग (हार्डवेअर जोडलेले नाही)'],
+acid:['Acidic','अम्लीय','आम्ल'],neu:['Near neutral','लगभग सामान्य','जवळपास सम'],alk:['Alkaline','क्षारीय','आम्लारी'],
+ideal:['Suitable range for this crop','इस फसल के लिए उपयुक्त सीमा','या पिकासाठी योग्य श्रेणी'],ok:['Within range ✓','सीमा के अंदर ✓','श्रेणीत आहे ✓'],low:['Below range ▼','सीमा से कम ▼','श्रेणीपेक्षा कमी ▼'],high:['Above range ▲','सीमा से ज़्यादा ▲','श्रेणीपेक्षा जास्त ▲'],
+rangeN:['Ranges are illustrative samples, not verified. pH alone cannot show nutrient levels; do a soil test.','सीमाएँ नमूना हैं, सत्यापित नहीं। केवल pH से पोषक तत्व पता नहीं चलते; मिट्टी जाँच करवाएँ।','श्रेणी नमुन्यादाखल आहेत, पडताळलेल्या नाहीत. फक्त pH वरून अन्नद्रव्ये समजत नाहीत; माती तपासणी करा.'],
+advT:['Your combined result','आपका संयुक्त परिणाम','तुमचा एकत्रित निकाल'],miss:['Add a crop scan and a soil pH reading for the full picture.','पूरी तस्वीर के लिए फसल स्कैन और मिट्टी pH जोड़ें।','पूर्ण चित्रासाठी पीक स्कॅन आणि मातीचा pH जोडा.'],
+whyH:['Why are we recommending this?','हम यह क्यों सुझा रहे हैं?','आम्ही हे का सुचवत आहोत?'],
+r1:['Do a soil test','मिट्टी की जाँच करवाएँ','माती तपासणी करा'],r1w:['pH does not show nutrients. A lab test shows what is really needed and avoids wasted fertilizer. We do not give fertilizer quantities without it.','pH से पोषक तत्व नहीं दिखते। लैब जाँच से असली ज़रूरत पता चलती है और खाद बर्बाद नहीं होती। इसके बिना हम खाद की मात्रा नहीं बताते।','pH वरून अन्नद्रव्ये दिसत नाहीत. प्रयोगशाळा तपासणीतून खरी गरज समजते आणि खत वाया जात नाही. त्याशिवाय आम्ही खताचे प्रमाण सांगत नाही.'],
+r2:['Correct the soil pH slowly','मिट्टी का pH धीरे-धीरे सुधारें','मातीचा pH हळूहळू सुधारा'],r2w:['Your pH is outside this crop\'s sample range. After the soil test, ask a local expert which amendment and how much.','आपका pH इस फसल की नमूना सीमा से बाहर है। मिट्टी जाँच के बाद स्थानीय विशेषज्ञ से पूछें कौन सा सुधारक और कितना।','तुमचा pH या पिकाच्या नमुना श्रेणीबाहेर आहे. माती तपासणीनंतर स्थानिक तज्ज्ञांना विचारा कोणते सुधारक आणि किती.'],
+r3:['Confirm the problem before spraying','छिड़काव से पहले समस्या की पुष्टि करें','फवारणीपूर्वी समस्या निश्चित करा'],r3w:['Yellow or spotted leaves can come from water, nutrients, pests or disease. Try non-chemical steps first, and only use an approved product by its label (dose, protective gear, waiting period).','पीली या धब्बेदार पत्तियाँ पानी, पोषण, कीट या रोग से हो सकती हैं। पहले बिना रसायन के उपाय आज़माएँ, और मान्य उत्पाद केवल लेबल के अनुसार (मात्रा, सुरक्षा, प्रतीक्षा अवधि) इस्तेमाल करें।','पिवळी किंवा ठिपकेदार पाने पाणी, अन्नद्रव्ये, कीड किंवा रोगामुळे होऊ शकतात. आधी रसायनविरहित उपाय करा, आणि मान्य उत्पादन फक्त लेबलनुसार (प्रमाण, सुरक्षा, प्रतीक्षा कालावधी) वापरा.'],
+r4:['Keep monitoring weekly','हर हफ्ते निगरानी रखें','दर आठवड्याला निरीक्षण करा'],r4w:['The crop looks fine in this demo result. Regular scans catch problems early.','इस डेमो परिणाम में फसल ठीक दिखती है। नियमित स्कैन से समस्या जल्दी पकड़ में आती है।','या डेमो निकालात पीक ठीक दिसते. नियमित स्कॅनमुळे समस्या लवकर कळते.'],
+explore:['Explore suitable products','उपयुक्त उत्पाद देखें','योग्य उत्पादने पाहा'],edu:['These are educational suggestions, not ads or sponsored products.','ये शैक्षणिक सुझाव हैं, विज्ञापन या प्रायोजित उत्पाद नहीं।','हे शैक्षणिक सुझाव आहेत, जाहिरात किंवा प्रायोजित उत्पादने नाहीत.'],
+srch:['Search products','उत्पाद खोजें','उत्पादने शोधा'],all:['All','सभी','सर्व'],fert:['Fertilizers','खाद','खते'],test:['Soil testing','मिट्टी जाँच','माती तपासणी'],pest:['Pest control','कीट नियंत्रण','कीड नियंत्रण'],seed:['Seeds','बीज','बियाणे'],tool:['Tools','औज़ार','अवजारे'],
+add:['Add to cart','कार्ट में डालें','कार्टमध्ये टाका'],cart:['Cart','कार्ट','कार्ट'],total:['Total','कुल','एकूण'],chk:['Demo checkout','डेमो चेकआउट','डेमो चेकआउट'],done:['Demo order placed. No real payment or delivery.','डेमो ऑर्डर हो गया। कोई असली भुगतान या डिलीवरी नहीं।','डेमो ऑर्डर झाली. प्रत्यक्ष पेमेंट किंवा डिलिव्हरी नाही.'],emptyC:['Your cart is empty.','कार्ट खाली है।','कार्ट रिकामी आहे.'],sampP:['Sample products and prices, not real listings.','नमूना उत्पाद और कीमतें, असली सूची नहीं।','नमुना उत्पादने आणि किमती, खरी यादी नाही.'],
+for:['For','के लिए','साठी'],soon:['coming soon','जल्द आ रहा है','लवकरच येत आहे'],
+hwT:['Hardware connection','हार्डवेयर कनेक्शन','हार्डवेअर कनेक्शन'],usb:['Connect by USB','USB से जोड़ें','USB ने जोडा'],wifi:['Connect by WiFi','WiFi से जोड़ें','WiFi ने जोडा'],disc:['Disconnect','डिस्कनेक्ट करें','डिस्कनेक्ट करा'],conn:['Connected','जुड़ा हुआ','जोडलेले'],notconn:['Not connected','जुड़ा नहीं','जोडलेले नाही'],
+waiting:['Waiting for data from the device…','डिवाइस से डेटा का इंतज़ार…','डिव्हाइसकडून डेटाची प्रतीक्षा…'],gotAt:['Last data received','आखिरी डेटा मिला','शेवटचा डेटा मिळाला'],
+noserial:['This browser has no USB support. Use Chrome or Edge on a laptop, or use WiFi.','इस ब्राउज़र में USB सपोर्ट नहीं है। लैपटॉप पर Chrome या Edge इस्तेमाल करें, या WiFi चुनें।','या ब्राउझरमध्ये USB सपोर्ट नाही. लॅपटॉपवर Chrome किंवा Edge वापरा, किंवा WiFi निवडा.'],
+connfail:['Could not connect. Check the cable or address and try again.','जुड़ नहीं सका। केबल या पता जाँचकर फिर कोशिश करें।','जोडता आले नाही. केबल किंवा पत्ता तपासून पुन्हा प्रयत्न करा.'],
+devUrl:['Device address (WiFi)','डिवाइस का पता (WiFi)','डिव्हाइसचा पत्ता (WiFi)'],demoSim:['Send demo data (no hardware)','डेमो डेटा भेजें (बिना हार्डवेयर)','डेमो डेटा पाठवा (हार्डवेअरशिवाय)'],
+fmt:['Device sends one JSON line','डिवाइस एक JSON लाइन भेजे','डिव्हाइसने एक JSON ओळ पाठवावी'],
+hwNote:['Received from your hardware prototype. The grade is calculated by the device, not by this page.','आपके हार्डवेयर प्रोटोटाइप से मिला। ग्रेड डिवाइस ने निकाला है, इस पेज ने नहीं।','तुमच्या हार्डवेअर प्रोटोटाइपकडून मिळाले. ग्रेड डिव्हाइसने काढला आहे, या पेजने नाही.'],
+noData:['No hardware scan yet. Connect the device and run a scan.','अभी हार्डवेयर स्कैन नहीं हुआ। डिवाइस जोड़कर स्कैन करें।','अजून हार्डवेअर स्कॅन झाले नाही. डिव्हाइस जोडून स्कॅन करा.'],
+fromHw:['From hardware','हार्डवेयर से','हार्डवेअरकडून'],manual:['Or enter pH by hand','या pH हाथ से डालें','किंवा pH हाताने टाका'],
+foot:['AgriSathi is a college prototype. Crop grade and soil pH come from the connected hardware prototype. Weather and payments are not connected.','AgriSathi एक कॉलेज प्रोटोटाइप है। फसल ग्रेड और मिट्टी pH जुड़े हुए हार्डवेयर से आते हैं। मौसम और भुगतान जुड़े नहीं हैं।','AgriSathi हा कॉलेज प्रोटोटाइप आहे. पीक ग्रेड आणि मातीचा pH जोडलेल्या हार्डवेअरकडून येतात. हवामान आणि पेमेंट जोडलेले नाहीत.'],
+saveOk:['Report saved.','रिपोर्ट सहेजी गई।','अहवाल जतन केला.'],
+};
+const G=[ // grades: colour, icon, [title,desc,next] per language
+['#2E7D32','✓',[['Excellent health','Crop looks healthy with no clear symptoms.','Keep regular care and weekly checks.'],['उत्कृष्ट स्वास्थ्य','फसल स्वस्थ दिखती है, कोई स्पष्ट लक्षण नहीं।','नियमित देखभाल और साप्ताहिक जाँच जारी रखें।'],['उत्कृष्ट आरोग्य','पीक निरोगी दिसते, स्पष्ट लक्षणे नाहीत.','नियमित निगा आणि आठवड्याची तपासणी सुरू ठेवा.']]],
+['#6FA32A','✓',[['Good health','Mostly healthy, minor issues to watch.','Watch closely and scan again in a week.'],['अच्छा स्वास्थ्य','लगभग स्वस्थ, छोटी बातों पर नज़र रखें।','ध्यान रखें और हफ्ते भर बाद फिर स्कैन करें।'],['चांगले आरोग्य','जवळजवळ निरोगी, किरकोळ बाबींवर लक्ष ठेवा.','लक्ष ठेवा आणि आठवड्याभराने पुन्हा स्कॅन करा.']]],
+['#B88400','!',[['Mild stress','Some visible signs of stress.','Check water, soil and the underside of leaves. Scan again in 3 days.'],['हल्का तनाव','तनाव के कुछ लक्षण दिख रहे हैं।','पानी, मिट्टी और पत्तियों के नीचे जाँचें। 3 दिन में फिर स्कैन करें।'],['सौम्य ताण','ताणाची काही लक्षणे दिसत आहेत.','पाणी, माती आणि पानांची खालची बाजू तपासा. ३ दिवसांत पुन्हा स्कॅन करा.']]],
+['#D4660A','!',[['Moderate stress','Clear symptoms. Finding the cause matters now.','Test the soil and ask a local agriculture expert.'],['मध्यम तनाव','साफ़ लक्षण हैं। अब कारण खोजना ज़रूरी है।','मिट्टी की जाँच करें और स्थानीय कृषि विशेषज्ञ से पूछें।'],['मध्यम ताण','स्पष्ट लक्षणे आहेत. आता कारण शोधणे गरजेचे.','माती तपासा आणि स्थानिक कृषी तज्ज्ञांना विचारा.']]],
+['#C73E12','⚠',[['Severe stress','Substantial damage or stress is visible.','Get an expert assessment promptly.'],['गंभीर तनाव','काफ़ी नुकसान या तनाव दिख रहा है।','जल्द विशेषज्ञ से जाँच करवाएँ।'],['तीव्र ताण','बरेच नुकसान किंवा ताण दिसत आहे.','लवकर तज्ज्ञांकडून तपासणी करून घ्या.']]],
+['#8E1B1B','✖',[['Critical condition','Extensive visible damage.','Urgent: contact your agriculture officer or KVK today.'],['गंभीर स्थिति','बहुत ज़्यादा नुकसान दिख रहा है।','तुरंत: आज ही कृषि अधिकारी या KVK से संपर्क करें।'],['गंभीर स्थिती','खूप मोठे नुकसान दिसत आहे.','तातडीने: आजच कृषी अधिकारी किंवा KVK शी संपर्क साधा.']]]];
+// Crops: names [en,hi,mr], illustrative (UNVERIFIED) pH ranges
+const C={tomato:{e:'🍅',n:['Tomato','टमाटर','टोमॅटो'],v:'Abhinav',p:'Plot A',st:'s3',ph:[6.0,6.8],g:3,d:'12 Oct'},cotton:{e:'🌱',n:['Cotton','कपास','कापूस'],v:'Bt hybrid',p:'Plot B',st:'s2',ph:[5.8,8.0],g:2,d:'10 Oct'},rice:{e:'🌾',n:['Rice','धान','भात'],v:'Indrayani',p:'Plot C',st:'s4',ph:[5.5,7.0],g:1,d:'08 Oct'},wheat:{e:'🌿',n:['Wheat','गेहूं','गहू'],v:'Lokwan',p:'Plot D',st:'s1',ph:[6.0,7.5],g:4,d:'05 Oct'}};
+const P=[{id:1,n:['Soil testing kit','मिट्टी जाँच किट','माती तपासणी किट'],c:'test',pr:499,e:'🧪',cr:'all'},{id:2,n:['Digital pH meter','डिजिटल pH मीटर','डिजिटल pH मीटर'],c:'test',pr:899,e:'📟',cr:'all'},{id:3,n:['Neem-based bio-pesticide','नीम आधारित जैव कीटनाशक','निंबोळी आधारित जैव कीटकनाशक'],c:'pest',pr:320,e:'🧴',cr:'tomato'},{id:4,n:['Vermicompost 5 kg','वर्मीकम्पोस्ट 5 किलो','गांडूळ खत ५ किलो'],c:'fert',pr:180,e:'🪱',cr:'all'},{id:5,n:['Tomato seeds','टमाटर बीज','टोमॅटो बियाणे'],c:'seed',pr:120,e:'🌰',cr:'tomato'},{id:6,n:['Hand sprayer 16 L','हैंड स्प्रेयर 16 लीटर','हँड स्प्रेयर १६ लिटर'],c:'tool',pr:1450,e:'🧯',cr:'all'}];
+// ---- state (localStorage guarded)
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let L=ls.get('as_lang',2);const S={route:'home',img:null,crop:'tomato',stage:'s3',busy:false,rep:ls.get('as_rep',[]),soil:ls.get('as_soil',null),cart:ls.get('as_cart',{}),cat:'all',q:'',cropF:null,order:false,serr:''};
+const t=k=>(D[k]&&D[k][L])||D[k][0];const $=s=>document.querySelector(s);
+const rupee=n=>'₹'+n.toLocaleString('en-IN');
+function toast(m){const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2200)}
+function go(r){S.route=r;S.order=false;location.hash=r;draw();scrollTo(0,0)}
+const latestRep=()=>S.rep[0]||null;
+function gb(g){const x=G[g-1];return `<span class="gbadge" style="background:${x[0]}">${x[1]} ${g} · ${x[2][L][0]}</span>`}
+function scale(g){return `<div class="scale" role="list">${G.map((x,i)=>`<div class="seg ${g===i+1?'on':''}" role="listitem" style="background:${x[0]}"><span aria-hidden="true">${x[1]}</span> ${i+1}<small>${x[2][L][0]}</small></div>`).join('')}</div>`}
+// ---- pages
+function pHome(){const r=latestRep(),g=r?r.g:2,ph=S.soil?S.soil.ph:6.4;
+return `<h1>${t('namaste')}</h1><p class="mute" style="font-size:19px">${t('hello')}</p>
+<div class="card"><h3>${t('scale')}</h3>${scale(g)}<p class="mute">${t('scaleN')}</p></div>
+<div class="grid"><div class="card stat"><b>4</b>${t('ncrops')} <span class="tag">${t('sample')}</span></div><div class="card stat"><b>${g}</b>${t('lg')} ${r?'':`<span class="tag">${t('sample')}</span>`}</div><div class="card stat"><b>${ph}</b>${t('lp')} ${S.soil?'':`<span class="tag">${t('sample')}</span>`}</div><div class="card stat"><b>3</b>${t('pend')} <span class="tag">${t('sample')}</span></div></div>
+<h2>${t('quick')}</h2><div class="row" style="margin-bottom:18px"><button class="btn" onclick="go('scan')">📷 ${t('scanB')}</button><button class="btn alt" onclick="go('soil')">🧪 ${t('soilB')}</button><button class="btn alt" onclick="go('advice')">💡 ${t('advB')}</button><button class="btn alt" onclick="go('market')">🛒 ${t('mktB')}</button></div>
+<h2>${t('myc')} <span class="tag">${t('sample')}</span></h2><div class="grid">${Object.entries(C).map(([k,c])=>`<div class="card"><div class="crop" aria-hidden="true">${c.e}</div><h3>${c.n[L]}</h3><div class="mute">${c.v} · ${c.p}<br>${t('stg')}: ${t(c.st)}<br>${t('last')}: ${c.d}</div><p>${gb(c.g)}</p><button class="btn alt" onclick="S.crop='${k}';go('scan')">${t('scanB')}</button></div>`).join('')}</div>
+<h2>${t('saved')}</h2>${S.rep.length?S.rep.map(x=>`<div class="card row">${gb(x.g)}<span>${C[x.c].n[L]} · ${x.d}</span><span class="tag">${t('fromHw')}</span></div>`).join(''):`<div class="card mute">${t('none')}</div>`}`}
+function cropSel(id,v,fn){return `<select id="${id}" onchange="${fn}">${Object.entries(C).map(([k,c])=>`<option value="${k}" ${k===v?'selected':''}>${c.e} ${c.n[L]}</option>`).join('')}</select>`}
+function devCard(){const d=S.dev;return `<div class="card"><div class="row"><b>${d.on?'🟢 '+t('devOn'):'⚪ '+t('devW')}</b><button class="btn alt" onclick="connectDev()">🔌 ${t('dev')}</button></div>${d.err?`<div class="note" role="alert">${d.err}</div>`:''}<p class="mute">USB serial · 115200 · {"ph":6.4,"grade":3}</p></div>`}
+const HW={mode:null,url:ls.get('as_url','http://192.168.4.1/data'),err:'',last:'',stop:null};
+function hwPanel(){const m=HW.mode;return `<div class="card"><h3>🔌 ${t('hwT')}</h3><p><b>${m?'● '+t('conn')+' ('+(m==='serial'?'USB':'WiFi')+')':'○ '+t('notconn')}</b></p>
+${m?`<p class="mute" id="hwt">${HW.last?t('gotAt')+': '+HW.last:t('waiting')}</p><button class="btn alt" onclick="hwStop()">${t('disc')}</button>`:`<button class="btn" onclick="connSerial()">🔌 ${t('usb')}</button><label for="wu">${t('devUrl')}</label><input id="wu" type="text" value="${HW.url}" autocomplete="off"><p><button class="btn alt" onclick="connWifi()">📶 ${t('wifi')}</button></p>`}
+${HW.err?`<div class="note" role="alert">${HW.err}</div>`:''}<p><button class="btn alt" onclick="demo()">${t('demoSim')}</button></p><p class="mute">${t('fmt')}: <code>{"ph":6.4,"grade":3,"crop":"tomato"}</code></p></div>`}
+function feed(o){const ph=parseFloat(o.ph),g=parseInt(o.grade);let ch=false;
+if(o.crop&&C[o.crop]&&o.crop!==S.crop){S.crop=o.crop;ch=true;if(S.soil)S.soil.c=S.crop}
+if(!isNaN(ph)&&ph>=0&&ph<=14&&(!S.soil||S.soil.ph!==ph||!S.soil.hw)){S.soil={ph,c:S.crop,sim:false,hw:true};ls.set('as_soil',S.soil);ch=true}
+if(g>=1&&g<=6&&(o.scan||!S.out||S.out.g!==g)){S.out={g,hw:true};S.rep.unshift({g,c:S.crop,d:new Date().toLocaleDateString('en-IN')});S.rep=S.rep.slice(0,10);ls.set('as_rep',S.rep);ch=true}
+HW.last=new Date().toLocaleTimeString();HW.err='';if(ch)draw();else{const e=$('#hwt');if(e)e.textContent=t('gotAt')+': '+HW.last}}
+function demo(){feed({ph:Math.round((5.2+Math.random()*3)*10)/10,grade:1+Math.floor(Math.random()*6),scan:true})}
+function hwStop(){if(HW.stop)HW.stop();HW.mode=null;HW.stop=null;draw()}
+async function connSerial(){HW.err='';if(!('serial' in navigator)){HW.err=t('noserial');draw();return}
+try{const port=await navigator.serial.requestPort();await port.open({baudRate:115200});let run=true,rd;HW.mode='serial';HW.stop=async()=>{run=false;try{await rd.cancel()}catch(e){}try{await port.close()}catch(e){}};draw();
+const dec=new TextDecoderStream();port.readable.pipeTo(dec.writable).catch(()=>{});rd=dec.readable.getReader();let buf='';
+while(run){const r=await rd.read();if(r.done)break;buf+=r.value;let i;while((i=buf.indexOf('\n'))>=0){const ln=buf.slice(0,i).trim();buf=buf.slice(i+1);try{feed(JSON.parse(ln))}catch(e){}}}}
+catch(e){HW.err=t('connfail');HW.mode=null;draw()}}
+function connWifi(){const u=$('#wu').value.trim();if(!/^https?:\/\//.test(u)){HW.err=t('connfail');draw();return}HW.url=u;ls.set('as_url',u);HW.err='';HW.mode='wifi';
+const poll=async()=>{try{const r=await fetch(u,{cache:'no-store'});feed(await r.json())}catch(e){HW.err=t('connfail')+' (CORS / http)';draw()}};
+const id=setInterval(poll,3000);HW.stop=()=>clearInterval(id);poll();draw()}
+function pScan(){const o=S.out;return `<h1>📷 ${t('scan')}</h1><div class="card"><label for="cs">${t('crop')}</label>${cropSel('cs',S.crop,"S.crop=this.value;if(S.soil)S.soil.c=S.crop;draw()")}<label for="st">${t('stg')}</label><select id="st" onchange="S.stage=this.value">${['s1','s2','s3','s4'].map(s=>`<option value="${s}" ${S.stage===s?'selected':''}>${t(s)}</option>`).join('')}</select></div>${hwPanel()}${o?report(o):`<div class="card mute">${t('noData')}</div>`}`}
+function report(o){const x=G[o.g-1][2][L];return `<div class="card" style="border:2px solid ${G[o.g-1][0]}"><div class="note">${t('hwNote')}</div><p>${gb(o.g)}</p>${scale(o.g)}
+<h3>${t('obs')}</h3><p>${x[1]}</p><h3>${t('why')}</h3><ul>${t('reasons').split('|').map(i=>`<li>${i}</li>`).join('')}</ul>
+<h3>${t('todo')}</h3><p><b>${x[2]}</b></p><h3>${t('prev')}</h3><ul>${t('prevT').split('|').map(i=>`<li>${i}</li>`).join('')}</ul>
+<div class="row"><button class="btn" onclick="go('soil')">🧪 ${t('soilB')}</button><button class="btn alt" onclick="go('advice')">💡 ${t('advB')}</button></div></div>`}
+function pSoil(){const s=S.soil;return `<h1>🧪 ${t('soil')}</h1>${hwPanel()}<div class="card"><h3>${t('manual')}</h3><label for="sc">${t('crop')}</label>${cropSel('sc',s?s.c:S.crop,"S.crop=this.value;if(S.soil){S.soil.c=S.crop;ls.set('as_soil',S.soil)}draw()")}
+<label for="ph">${t('phv')}</label><input id="ph" type="number" step="0.1" min="0" max="14" inputmode="decimal" value="${s&&!s.hw?s.ph:''}">${S.perr?`<div class="note" role="alert">${t('badpH')}</div>`:''}<p><button class="btn" onclick="soilGo()">${t('check')}</button></p></div>${s?soilRes(s):''}<div class="note">${t('rangeN')}</div>`}
+const status=(ph,c)=>{const r=C[c].ph;return ph<r[0]?'low':ph>r[1]?'high':'ok'};
+function soilRes(s){const k=status(s.ph,s.c),tp=s.ph<6?'acid':s.ph<=7.5?'neu':'alk';return `<div class="card"><h2>pH ${s.ph} · ${t(tp)} ${s.hw?`<span class="tag">${t('fromHw')}</span>`:''}</h2><p>${C[s.c].e} ${C[s.c].n[L]}: ${t('ideal')} <b>${C[s.c].ph[0]}–${C[s.c].ph[1]}</b> <span class="tag">${t('sample')}</span></p><p><b>${t(k)}</b></p><div class="row"><button class="btn" onclick="go('advice')">💡 ${t('advB')}</button></div></div>`}
+function soilGo(){S.perr=false;const v=parseFloat($('#ph').value);if(isNaN(v)||v<0||v>14){S.perr=true;draw();return}S.soil={ph:v,c:$('#sc').value,sim:false};S.crop=S.soil.c;ls.set('as_soil',S.soil);draw()}
+function pAdvice(){const r=latestRep(),s=S.soil,c=S.crop,recs=[['r1','r1w']];if(s&&status(s.ph,s.c)!=='ok')recs.push(['r2','r2w']);recs.push(r&&r.g>=3?['r3','r3w']:['r4','r4w']);
+return `<h1>💡 ${t('advT')}</h1><div class="card"><p>${C[c].e} <b>${C[c].n[L]}</b></p><div class="row">${r?gb(r.g):''}${s?`<span class="gbadge" style="background:#1E5631">pH ${s.ph} · ${t(status(s.ph,s.c))}</span>`:''}</div>${!r||!s?`<div class="note">${t('miss')}</div><div class="row"><button class="btn alt" onclick="go('scan')">${t('scanB')}</button><button class="btn alt" onclick="go('soil')">${t('soilB')}</button></div>`:''}</div>
+<h2>${t('whyH')}</h2>${recs.map(x=>`<div class="card"><h3>✔ ${t(x[0])}</h3><p>${t(x[1])}</p></div>`).join('')}<div class="note">${t('edu')}</div><button class="btn" onclick="S.cropF=S.crop;go('market')">🛒 ${t('explore')}</button>`}
+function pMarket(){const cats=['all','fert','test','pest','seed','tool'];const list=P.filter(p=>(S.cat==='all'||p.c===S.cat)&&(!S.cropF||p.cr==='all'||p.cr===S.cropF)&&p.n[L].toLowerCase().includes(S.q.toLowerCase()));
+const items=Object.keys(S.cart).map(id=>[P.find(p=>p.id==id),S.cart[id]]).filter(x=>x[0]);const tot=items.reduce((a,x)=>a+x[0].pr*x[1],0);
+return `<h1>🛒 ${t('market')}</h1><div class="note">${t('sampP')}</div>${S.cropF?`<p class="row"><span class="tag">${t('for')} ${C[S.cropF].n[L]}</span><button class="chip" onclick="S.cropF=null;draw()">✕</button></p>`:''}
+<input type="search" aria-label="${t('srch')}" placeholder="${t('srch')}" value="${S.q}" oninput="S.q=this.value;draw(true)" id="q"><div class="row" style="margin:10px 0">${cats.map(c=>`<button class="chip ${S.cat===c?'on':''}" onclick="S.cat='${c}';draw()">${t(c)}</button>`).join('')}</div>
+<div class="grid">${list.map(p=>`<div class="card"><div class="crop" aria-hidden="true">${p.e}</div><h3>${p.n[L]}</h3><p class="mute">${t(p.c)} · ${p.cr==='all'?t('all'):C[p.cr].n[L]}</p><p><b>${rupee(p.pr)}</b> <span class="tag">${t('sample')}</span></p><button class="btn alt" onclick="addC(${p.id})">${t('add')}</button></div>`).join('')}</div>
+<div class="card" id="cart"><h2>${t('cart')}</h2>${S.order?`<div class="note">${t('done')}</div>`:items.length?items.map(([p,q])=>`<div class="row" style="justify-content:space-between;margin:6px 0"><span>${p.e} ${p.n[L]}</span><span class="row"><button class="chip" aria-label="-" onclick="qty(${p.id},-1)">−</button><b>${q}</b><button class="chip" aria-label="+" onclick="qty(${p.id},1)">+</button> ${rupee(p.pr*q)}</span></div>`).join('')+`<h3>${t('total')}: ${rupee(tot)}</h3><button class="btn" onclick="S.cart={};ls.set('as_cart',{});S.order=true;draw()">${t('chk')}</button>`:`<p class="mute">${t('emptyC')}</p>`}</div>`}
+function addC(id){S.cart[id]=(S.cart[id]||0)+1;ls.set('as_cart',S.cart);S.order=false;draw();toast('✓ '+P.find(p=>p.id===id).n[L])}
+function qty(id,d){S.cart[id]=(S.cart[id]||0)+d;if(S.cart[id]<=0)delete S.cart[id];ls.set('as_cart',S.cart);draw()}
+// ---- shell
+const PG={home:pHome,scan:pScan,soil:pSoil,advice:pAdvice,market:pMarket};
+function draw(keepFocus){const y=scrollY;$('#app').innerHTML=PG[S.route]();$('#nav').innerHTML=Object.keys(PG).map(k=>`<button class="${S.route===k?'on':''}" onclick="go('${k}')">${t(k)}</button>`).join('');$('#foot').textContent=t('foot');
+if(keepFocus){const q=$('#q');if(q){q.focus();q.setSelectionRange(q.value.length,q.value.length)}}scrollTo(0,y)}
+function setLang(i){L=+i;ls.set('as_lang',L);document.documentElement.lang=['en','hi','mr'][L];draw()}
+$('#lang').innerHTML=LANGS.map((l,i)=>`<option value="${i}">${l[1]}</option>`).join('');
+$('#lang').value=L;$('#lang').onchange=e=>setLang(e.target.value);
+S.route=PG[location.hash.slice(1)]?location.hash.slice(1):'home';addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(PG[h]&&h!==S.route){S.route=h;draw()}});
+setLang(L);
+</script>
+</body>
+</html>
